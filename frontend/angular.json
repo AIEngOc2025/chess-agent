@@ -16,10 +16,20 @@
             "outputPath": "dist/chess-agent-frontend",
             "index": "src/index.html",
             "main": "src/main.ts",
-            "polyfills": ["zone.js"],
+            "polyfills": [
+              "zone.js"
+            ],
             "tsConfig": "tsconfig.app.json",
-            "assets": ["src/favicon.ico", "src/assets"],
-            "styles": ["src/styles.css"],
+            "assets": [
+              "src/favicon.ico",
+              "src/assets"
+            ],
+            "styles": [
+              "node_modules/chessground/assets/chessground.base.css",
+              "node_modules/chessground/assets/chessground.brown.css",
+              "node_modules/chessground/assets/chessground.cburnett.css",
+              "src/styles.css"
+            ],
             "scripts": []
           }
         },
