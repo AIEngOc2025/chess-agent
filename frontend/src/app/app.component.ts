@@ -1,0 +1,36 @@
+import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Chessground } from 'chessground';
+
+@Component({
+  selector: 'app-root',
+  template: `
+    <div style="text-align:center; font-family: Arial, sans-serif; margin-top: 20px;">
+      <h1>♟️ FFE Chess Agent - Interface Angular 🤖</h1>
+      <p>Échiquier propulsé par Chessground (Lichess Ecosystem)</p>
+      
+      <div style="display: flex; justify-content: center; gap: 40px; margin-top: 30px;">
+        <div #chessgroundContainer class="blue" style="width: 400px; height: 400px; border: 2px solid #333;"></div>
+        
+        <div style="width: 300px; text-align: left; background: #f5f5f5; padding: 15px; border-radius: 8px;">
+          <h3>🤖 Recommandations de l'Agent</h3>
+          <hr>
+          <p><strong>Meilleur coup suggéré :</strong> En attente de l'API...</p>
+          <p><strong>Contexte :</strong> Prêt pour l'analyse</p>
+        </div>
+      </div>
+    </div>
+  `,
+  styleUrls: []
+})
+export class AppComponent implements AfterViewInit {
+  @ViewChild('chessgroundContainer') container!: ElementRef;
+
+  ngAfterViewInit() {
+    // Initialisation de l'échiquier Chessground
+    Chessground(this.container.nativeElement, {
+      orientation: 'white',
+      coordinates: true,
+      turnColor: 'white'
+    });
+  }
+}
