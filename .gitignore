@@ -1,0 +1,48 @@
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Node modules
+node_modules/
+frontend/node_modules/
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment
+.env.local
+.env.*.local
+
+# Docker volumes
+volumes/
+mongodb_data/
+
+# Angular
+frontend/.angular/
+frontend/dist/
+
+# Temporary files
+*.tmp
+*.log
+.agents/
+*patch*
+
+# Keep important files
+!README.md
+!docker-compose.yml
+!.env.example

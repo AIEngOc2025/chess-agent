@@ -18,7 +18,8 @@
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.0",
-    "chessground": "^9.1.1"
+    "chessground": "^9.1.1",
+    "chess.js": "^1.0.0-beta.8"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^17.0.0",
