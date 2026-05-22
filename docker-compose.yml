@@ -1,0 +1,104 @@
+
+services:
+  etcd:
+    container_name: milvus-etcd
+    image: quay.io/coreos/etcd:v3.5.5
+    environment:
+      - ETCD_AUTO_COMPACTION_RETENTION=1h
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-./volumes}/etcd:/etcd
+    command: [
+      "etcd",
+      "--name=etcd",
+      "--data-dir=/etcd",
+      "--listen-peer-urls=http://0.0.0.0:2380",
+      "--listen-client-urls=http://0.0.0.0:2379",
+      "--listen-metrics-urls=http://0.0.0.0:2381",
+      "--initial-advertise-peer-urls=http://etcd:2380",
+      "--advertise-client-urls=http://etcd:2379",
+      "--initial-cluster=etcd=http://etcd:2380",
+      "--initial-cluster-state=new"
+    ]
+    ports:
+      - "2379:2379"
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+  minio:
+    container_name: milvus-minio
+    image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-./volumes}/minio:/data
+    command: minio server /data --console-address ":9001"
+    ports:
+      - "9001:9001"
+      - "9000:9000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+  standalone:
+    container_name: milvus-standalone
+    image: milvusdb/milvus:v2.3.10
+    command: ["milvus", "run", "standalone"]
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-./volumes}/milvus:/var/lib/milvus
+    ports:
+      - "19530:19530"
+    depends_on:
+      etcd:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  chess_frontend:
+    container_name: chess_frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "4200:4200"  # 👈 On repasse sur le port d'Angular
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - chess_backend
+
+  chess_backend:
+    container_name: chess_backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"  # 👈 Aligné avec la configuration d'Uvicorn
+    depends_on:
+      standalone:
+        condition: service_started
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+  
+  chess_mongodb:
+    image: mongo:latest
+    container_name: chess_mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:
